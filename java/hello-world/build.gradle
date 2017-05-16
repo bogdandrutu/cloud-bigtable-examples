@@ -1,0 +1,54 @@
+apply plugin: 'java'
+
+tasks.withType(JavaCompile) {
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+}
+
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+}
+
+repositories {
+  mavenLocal()
+  mavenCentral()
+}
+
+def opencensusVersion = '0.6.0-SNAPSHOT'
+def bigtableVersion = '1.0.0-pre2-SNAPSHOT'
+def hbaseVersion = '1.1.5'
+
+dependencies {
+    def withoutGrpc = { exclude group: 'io.grpc', module: 'grpc-all' }
+    def withoutNetty = { exclude group: 'io.netty', module: '*'}
+
+    compile "io.opencensus:opencensus-api:${opencensusVersion}"
+    compile "io.opencensus:opencensus-impl:${opencensusVersion}"
+    compile "io.opencensus:opencensus-trace-stackdriver-exporter:${opencensusVersion}", withoutGrpc
+    compile "io.opencensus:opencensus-zpages:${opencensusVersion}"
+    compile "com.google.cloud.bigtable:bigtable-hbase-1.x:${bigtableVersion}", withoutNetty
+    compile "org.apache.hbase:hbase-client:${hbaseVersion}", withoutNetty
+    compile 'com.google.auth:google-auth-library-credentials:0.7.0'
+    compile 'com.google.auth:google-auth-library-oauth2-http:0.7.0'
+    compile 'io.grpc:grpc-all:1.6.0-SNAPSHOT'
+    compile 'io.netty:netty-tcnative-boringssl-static:2.0.3.Final'
+}
+
+// Provide convenience executables for trying out the examples.
+apply plugin: 'application'
+
+startScripts.enabled = false
+
+task helloWorld(type: CreateStartScripts) {
+    mainClassName = 'com.example.cloud.bigtable.helloworld.HelloWorld'
+    applicationName = 'HelloWorld'
+    outputDir = new File(project.buildDir, 'tmp')
+    classpath = jar.outputs.files + project.configurations.runtime
+}
+
+applicationDistribution.into('bin') {
+    from(helloWorld)
+    fileMode = 0755
+}

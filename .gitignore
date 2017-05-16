@@ -44,3 +44,9 @@ client-secret.json
 .project
 .classpath
 .settings
+
+# Gradle
+build
+gradle.properties
+.gradle
+local.properties
