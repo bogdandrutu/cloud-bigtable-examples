@@ -46,6 +46,7 @@ client-secret.json
 .settings
 
 # Gradle
+!gradle-wrapper.jar
 build
 gradle.properties
 .gradle
